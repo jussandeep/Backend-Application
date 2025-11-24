@@ -1,9 +1,7 @@
-FROM openjdk:17-slim
+FROM eclipse-temurin:17-jdk
+
 EXPOSE 8080
 
-ADD target/Backend-Application.jar Backend-Application.jar
+COPY target/Backend-Application.jar Backend-Application.jar
 
 ENTRYPOINT ["java", "-jar", "Backend-Application.jar"]
-
-
-
