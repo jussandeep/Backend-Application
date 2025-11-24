@@ -16,7 +16,19 @@ pipeline {
                 sh 'mvn clean install'
             }
         }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    sh 'docker build -t jsandeep9866/backend-application:latest .'
+                }
+            }
+        }
     }
+    
+    
+    
+
+
 
     post {
         always {
