@@ -13,37 +13,7 @@ pipeline {
        
         
     }
-    // stages {
-    //     stage('Build Maven') {
-    //         steps {
-    //             // simple git checkout (branch main)
-    //             git branch: 'main', url: 'https://github.com/jussandeep/Backend-Application.git'
-
-    //             // run maven (Jenkins will put the configured maven on PATH)
-    //             sh 'mvn clean install'
-    //         }
-    //     }
-    //     stage('Build Docker Image') {
-    //         steps {
-    //             script {
-    //                 sh 'docker build -t jsandeep9866/backend-application:latest .'
-    //             }
-    //         }
-    //     }
-    //     stage('Push Docker Image') {
-    //         steps {
-    //             script {
-    //                 withCredentials([string(credentialsId: 'DockerHubID', variable: 'DockerDubPwd')]) {
-    //                     sh 'docker login -u jsandeep9866 -p ${DockerDubPwd}'
-    //                     sh 'docker push jsandeep9866/backend-application:latest'
     
-    //                }
-                    
-    //             }
-    //         }
-    //     }
-        
-    // }
     stages {
         stage('Checkout') {
             steps {
@@ -78,40 +48,29 @@ pipeline {
             }
         }
 
-        stage('Deploy to google cloud in k8s') {
+        stage('Deploy to AWS EKS') {
             steps {
-                script {
-                    // Load the JSON key file
-                    withCredentials([file(credentialsId: 'GOOGLE_CLOUD_KEY', variable: 'GOOGLE_KEY_FILE')]) {
-                        
-                        // --- Configuration (Set using confirmed values) ---
-                        def PROJECT_ID = "adroit-poet-452006-a3" 
-                        def CLUSTER_NAME = "k8scluster1"   
-                        def CLUSTER_ZONE = "africa-south1-c"    
-                        // -----------------------------------------------------------------
+                sh '''
+                # Connect kubectl to EKS
+                aws eks update-kubeconfig \
+                    --region ap-south-1 \
+                    --name new-cluster
 
-                        // 1. Activate the service account
-                        sh "gcloud auth activate-service-account --key-file=${GOOGLE_KEY_FILE}"
-                        
-                        // 2. Set the project config (Answer to Question 1: YES)
-                        sh "gcloud config set project ${PROJECT_ID}"
+                # Deploy MongoDB FIRST
+                kubectl apply -f mongoDB.yml
 
-                        // 3. Get the credentials for the GKE cluster (Answer to Question 2: YES, the approach is correct)
-                        sh "gcloud container clusters get-credentials ${CLUSTER_NAME} --zone ${CLUSTER_ZONE} --project ${PROJECT_ID}"
+                # Deploy backend application
+                kubectl apply -f backend.yml
 
-                        // 4. Apply the Kubernetes manifest (Answer to Question 3: MUST use backend-app.yaml)
-                        // Ensure your backend-app.yaml is configured to pull the image using ${IMAGE}:${TAG}
-                        sh "kubectl apply -f backend-app.yaml" 
-                    }
-                }
+                # Verify rollout
+                kubectl rollout status deployment/backend-deployment
+                '''
             }
         }
+
+
+
     }
-    
-    
-
-
-
     post {
         always {
             // optional: archive build logs/artifacts, etc.
