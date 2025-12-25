@@ -57,10 +57,10 @@ pipeline {
                     --name my-cluster
 
                 # Deploy MongoDB FIRST
-                kubectl apply -f mongoDB.yml
+                kubectl apply -f mongoDB.yaml
 
                 # Deploy backend application
-                kubectl apply -f backend.yml
+                kubectl apply -f backend.yaml
 
                 # Verify rollout
                 kubectl rollout status deployment/backend-deployment
