@@ -54,7 +54,7 @@ pipeline {
                 # Connect kubectl to EKS
                 aws eks update-kubeconfig \
                     --region ap-south-1 \
-                    --name my-cluster
+                    --name fullstack-cluster
 
                 # Deploy MongoDB FIRST
                 kubectl apply -f mongoDB.yaml
