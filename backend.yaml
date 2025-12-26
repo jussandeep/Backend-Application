@@ -17,24 +17,36 @@ spec:
           image: jsandeep9866/backend-application:latest
           ports:
             - containerPort: 8080
-          env:
-            - name: SPRING_DATA_MONGODB_URI
-              value: mongodb://$(MONGO_USERNAME):$(MONGO_PASSWORD)@mongodb:27017/$(MONGO_DB)
-            - name: MONGO_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: mongodb-secret
-                  key: MONGO_USERNAME
-            - name: MONGO_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: mongodb-secret
-                  key: MONGO_PASSWORD
-            - name: MONGO_DB
               valueFrom:
                 secretKeyRef:
                   name: mongodb-secret
                   key: MONGO_DB
+          env:
+            - name: SPRING_DATA_MONGODB_HOST
+              value: mongodb
+
+            - name: SPRING_DATA_MONGODB_PORT
+              value: "27017"
+
+            - name: SPRING_DATA_MONGODB_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: MONGO_DB
+
+            - name: SPRING_DATA_MONGODB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: MONGO_USERNAME
+
+            - name: SPRING_DATA_MONGODB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mongodb-secret
+                  key: MONGO_PASSWORD
+
+
 ---
 apiVersion: v1
 kind: Service
