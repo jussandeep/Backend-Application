@@ -10,6 +10,8 @@ pipeline {
         IMAGE = "${DOCKER_HUB_USER}/backend-application"
         TAG = "v1.0.${BUILD_NUMBER}"
 
+        ARTIFact_NAME = "Backend-Application.jar"
+        S3_BUCKET = "my-artifact-bucket"
        
         
     }
@@ -27,7 +29,16 @@ pipeline {
             }
         }
 
-        
+        stage('Upload Artifact to S3'){
+            steps {
+                sh '''
+                aws s3 cp target/${ARTIFact_NAME} 
+                s3://${S3_BUCKET}/${ARTIFact_NAME}-${BUILD_NUMBER}
+                '''
+            }
+
+        }
+
         stage('Docker Build') {
             steps {
                 sh "docker build -t ${IMAGE}:${TAG} ."
